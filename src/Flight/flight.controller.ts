@@ -21,7 +21,7 @@ export class FlightController {
 
     }
 
-    @Post()
+    @Post('/getFlight')
 
     async serachFlights(@Body() createDto: SearchFlightDto): Promise<any> {
         return await this.flightServices.serachFlights(createDto)
@@ -36,7 +36,7 @@ export class FlightController {
     }
 
 
-    @Post(':id')
+    @Post('/flight/:id')
 
     async bookAvailableSeats(@Param('id') id: string, @Body() bookSeats: BookSeatsDto): Promise<any> {
         return await this.flightServices.bookAvailableSeats(bookSeats, id)

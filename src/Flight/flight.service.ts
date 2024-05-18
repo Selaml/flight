@@ -1473,7 +1473,10 @@ export class FlightService {
 
         try {
             const datas = this.getMockData()
-            const calculateAge = ((new Date()).getTime() - ((new Date(createDto.birthDate)).getTime()))
+            const birthDate = new Date(createDto.birthDate);
+            const ageDiffMs = Date.now() - birthDate.getTime();
+            const ageDate = new Date(ageDiffMs); // The epoch will be set at 1970-01-01T00:00:00Z
+            const calculateAge = Math.abs(ageDate.getUTCFullYear() - 1970);
             if (createDto.age === calculateAge) {
 
                 datas.passangerDetail.UserName = createDto.UserName,
@@ -1517,12 +1520,25 @@ export class FlightService {
         try {
             const datas = this.getMockData()
 
-            const filterdData = datas.flight.find(data => data.destination === createDto.destination && data.origin === createDto.origin && data.carrierType === createDto.carrierType && data.departureTime === createDto.departureTime)
+            const filterdData = datas.flight.find(data =>
+                data.destination === createDto.destination &&
+                data.origin === createDto.origin &&
+                data.carrierType === createDto.carrierType &&
+                new Date(data.departureTime).getTime() === new Date(createDto.departureTime).getTime() &&
+                new Date(data.arrivalTime).getTime() === new Date(createDto.arrivalTime).getTime()
+            );
+            if (filterdData) {
+                return {
+                    msg: "succsesful",
+                    status: 201,
+                    flight: filterdData
+                }
+            }
+            else {
+                return new HttpException(
+                    "Flight Not Found",
+                    HttpStatus.BAD_REQUEST)
 
-            return {
-                msg: "succsesful",
-                status: 201,
-                flight: filterdData
             }
         }
 
@@ -1541,12 +1557,20 @@ export class FlightService {
         try {
 
             const datas = this.getMockData()
-            const filterdSeats = datas.seats.find(data => data.flightId === id)
+            const filterdSeats = datas.seats.find(data => data.flightId === id);
+            if (filterdSeats) {
 
-            return {
-                msg: "succsesful",
-                status: 201,
-                flight: filterdSeats
+                return {
+                    msg: "succsesful",
+                    status: 201,
+                    flight: filterdSeats
+                }
+            }
+            else {
+                return new HttpException(
+                    "Flight Not Found",
+                    HttpStatus.BAD_REQUEST)
+
             }
         }
 
@@ -1566,27 +1590,28 @@ export class FlightService {
         try {
             const datas = this.getMockData()
             const findFlight = datas.flight.find(item => item.flightId === id)
-            const filterdSeats = datas.seats.find(data => data.flightId === id)
+            const filteredSeats = datas.seats.find(data => data.flightId === id)
             const flightClass = findFlight.class.toString()
-            const g = Object.keys(filterdSeats.seatMap)
-            const findAvailableSeats = {}
-            //Object.keys(filterdSeats.seatMap) = "flightClass".seats.find(item => item === createDto.seat)
-            if (findAvailableSeats) {
-                if (findAvailableSeats === "available") {
-                    return {
-                        msg: "succsesful",
-                        status: 201,
-                        seats: findAvailableSeats
-                    }
-                }
-            }
 
-            else {
+
+            const seatMapForClass = filteredSeats.seatMap[flightClass]?.seats;
+
+            if (seatMapForClass) {
+                const availableSeats = Object.keys(seatMapForClass).filter(key => seatMapForClass[key] === "available");
+                const findAvailableSeat = availableSeats.includes(createDto.seat);
+                return {
+                    msg: "successful",
+                    status: 201,
+                    seats: findAvailableSeat ? [createDto.seat] : []
+                };
+            } else {
+
                 return new HttpException(
                     "no seats available for this flight",
                     HttpStatus.BAD_REQUEST)
 
             }
+
         }
 
 
