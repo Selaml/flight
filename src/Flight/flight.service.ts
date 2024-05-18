@@ -11,7 +11,7 @@ import { reservationDto } from "src/Dto/reservTicket.dyo";
 @Injectable()
 
 export class FlightService {
-    // implements IProductServise
+
     private getMockData() {
         return {
             flight: [
