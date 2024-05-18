@@ -44,7 +44,7 @@ export class FlightController {
     }
 
 
-    @Post(':id')
+    @Post('/book/:id')
 
     async bookFlight(@Param('id') id: string): Promise<any> {
         return await this.flightServices.bookFlight(id)
@@ -53,7 +53,7 @@ export class FlightController {
 
 
 
-    @Get()
+    @Post('/getByPnr')
 
     async fetchFlightDetailByPNR(@Body() createDto: FetchFlightDetailByPNRDTO): Promise<any> {
         return await this.flightServices.fetchFlightDetailByPNR(createDto)

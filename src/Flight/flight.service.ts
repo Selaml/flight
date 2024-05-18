@@ -1705,28 +1705,13 @@ export class FlightService {
                 }
             }
             const datas = this.getMockData()
-            const findBookedFlight = datas.bookedFlight.find(item => item.pnr === createDto.PNR)
+            const findBookedFlight = datas.bookedFlight.find(item => item.pnr.toString() === createDto.PNR.toString())
             const flight = datas.flight.find(data => data.flightId === findBookedFlight.flightId)
             return {
                 msg: "succsesfully Booked",
                 status: 201,
                 flight: datas.flight
             }
-
-            // datareturned.bookedFlight.flight = flight
-            // datareturned.bookedFlight = findBookedFlight,
-            // const flightClass = findFlight.class.toString()
-            // const findAvailableSeats = filterdSeats.seatMap.flightClass.seats.find(item => item === createDto.seat)
-            // if (findAvailableSeats) {
-            //     if (findAvailableSeats === "available") {
-            //         return {
-            //             msg: "succsesful",
-            //             status: 201,
-            //             seats: findAvailableSeats
-            //         }
-            //     }
-            // }
-
 
         }
 
