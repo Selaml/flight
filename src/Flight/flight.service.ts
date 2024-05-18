@@ -1462,8 +1462,11 @@ export class FlightService {
             resrvedTicket: [{
                 "flightId": "",
                 "ticketNumber": ""
+            }],
+            bookedSeats: [{
+                "flightId": "",
+                "seatNumber": ""
             }]
-
 
 
         };
@@ -1558,17 +1561,31 @@ export class FlightService {
 
             const datas = this.getMockData()
             const filterdSeats = datas.seats.find(data => data.flightId === id);
-            if (filterdSeats) {
+
+
+
+
+            const findFlight = datas.flight.find(item => item.flightId === id)
+
+            const flightClass = findFlight.class.toLocaleLowerCase().toString() + "Class"
+
+
+            const seatMapForClass = filterdSeats.seatMap[flightClass]?.seats;
+
+
+            if (seatMapForClass) {
+                const availableSeats = Object.keys(seatMapForClass).filter(key => seatMapForClass[key] === "available");
 
                 return {
                     msg: "succsesful",
                     status: 201,
-                    flight: filterdSeats
+                    flight: availableSeats
                 }
             }
+
             else {
                 return new HttpException(
-                    "Flight Not Found",
+                    "No Available Seats Found",
                     HttpStatus.BAD_REQUEST)
 
             }
@@ -1591,18 +1608,26 @@ export class FlightService {
             const datas = this.getMockData()
             const findFlight = datas.flight.find(item => item.flightId === id)
             const filteredSeats = datas.seats.find(data => data.flightId === id)
-            const flightClass = findFlight.class.toString()
-
-
+            const flightClass = findFlight.class.toLocaleLowerCase().toString() + "Class"
             const seatMapForClass = filteredSeats.seatMap[flightClass]?.seats;
 
+
             if (seatMapForClass) {
+                const bookedSeat = {
+                    "flightId": "",
+                    "seatNumber": ""
+                }
+
                 const availableSeats = Object.keys(seatMapForClass).filter(key => seatMapForClass[key] === "available");
                 const findAvailableSeat = availableSeats.includes(createDto.seat);
+                bookedSeat.flightId = findFlight.flightId
+                bookedSeat.seatNumber = createDto.seat
+                datas.bookedSeats.push(bookedSeat)
+
                 return {
                     msg: "successful",
                     status: 201,
-                    seats: findAvailableSeat ? [createDto.seat] : []
+                    seats: bookedSeat
                 };
             } else {
 
